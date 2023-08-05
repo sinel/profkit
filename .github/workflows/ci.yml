@@ -1,0 +1,110 @@
+name: ci
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      #--------------------------------------------------
+      # check-out repo
+      #--------------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      #--------------------------------------------------
+      # set-up python
+      #--------------------------------------------------
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      #--------------------------------------------------
+      # install & configure poetry
+      #--------------------------------------------------
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+      #--------------------------------------------------
+      # load cached venv if cache exists
+      #--------------------------------------------------
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      #--------------------------------------------------
+      # install dependencies if cache does not exist
+      #--------------------------------------------------
+      - name: Install dependencies
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --no-interaction --no-root
+      #----------------------------------------------
+      # install root project,
+      # required for sphinx jupyter-execute
+      #----------------------------------------------
+      - name: Install project
+        run: poetry install --no-interaction
+      #--------------------------------------------------
+      # run black
+      #--------------------------------------------------
+      - name: black
+        run: |
+          poetry run black src --diff --check
+      #--------------------------------------------------
+      # run ruff
+      #--------------------------------------------------
+      - name: ruff
+        run: |
+          poetry run ruff check src
+      #--------------------------------------------------
+      # run isort
+      #--------------------------------------------------
+      - name: isort
+        run: |
+          poetry run isort src --check-only
+      #--------------------------------------------------
+      # run mypy
+      #--------------------------------------------------
+      - name: mypy
+        run: |
+          poetry run mypy src
+      #--------------------------------------------------
+      # run unit tests
+      #--------------------------------------------------
+      - name: pytest
+        run: |
+          poetry run pytest
+      #--------------------------------------------------
+      # run tox
+      #--------------------------------------------------
+      - name: tox
+        run: |
+          poetry run tox
+      #--------------------------------------------------
+      # build docs
+      #--------------------------------------------------
+      - name: build docs
+        run: |
+          rm -rf gh-pages
+          mkdir gh-pages
+          touch gh-pages/.nojekyll
+          poetry run sphinx-build -T -P -v -b html docs/source docs/build
+          cp -r docs/build/* gh-pages/
+      #--------------------------------------------------
+      # deploy docs
+      #--------------------------------------------------
+      - name: deploy docs
+        if: ${{ github.event_name == 'push' }}
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages
+          folder: gh-pages

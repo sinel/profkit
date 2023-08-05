@@ -1,0 +1,94 @@
+[tool.poetry]
+name = "casq"
+version = "0.1.0"
+description = ""
+authors = ["Sinan Inel <sinan.inel@aalto.fi>"]
+license = "Apache 2.0 License"
+readme = "README.md"
+homepage = "https://github.com/sinel/casq"
+packages = [{ include = "src" }]
+
+[tool.poetry.dependencies]
+jupyter = "^1.0.0"
+jupyter-sphinx = "^0.4.0"
+loguru = "^0.7.0"
+matplotlib = "^3.7.0"
+pydata-sphinx-theme = "^0.13.3"
+python = "^3.11"
+sphinx = "^7.0.1"
+sphinx-autoapi = "^2.1.1"
+sphinx-favicon = "^1.0.1"
+wonderwords = "^2.2.0"
+sphinx-copybutton = "^0.5.2"
+
+[tool.poetry.group.dev.dependencies]
+black = {extras = ["jupyter"], version = "^23.3.0"}
+flake8 = "^6.0.0"
+isort = "^5.12.0"
+flake8-docstrings = "^1.6.0"
+mypy = "^1.3.0"
+pre-commit = "^3.3.2"
+pytest-cov = "^4.1.0"
+pytest-mock = "^3.11.1"
+ruff = "^0.0.275"
+testbook = "^0.4.2"
+tox = "^4.5.2"
+xdoctest = "^1.1.1"
+
+[tool.black]
+line_length = 88
+target_version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+balanced_wrapping = true
+order_by_type = true
+use_parentheses = true
+force_sort_within_sections = true
+reverse_relative = true
+known_first_party = "quaint"
+src_paths = ["src", "tests"]
+
+[tool.mypy]
+mypy_path = "src"
+exclude = ["docs", "logo"]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_untyped_defs = true
+# disallow_any_unimported = true
+no_implicit_optional = true
+warn_return_any = true
+warn_unused_ignores = true
+show_error_codes = true
+explicit_package_bases = true
+enable_incomplete_feature="Unpack"
+
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib.*",
+    "mpl_toolkits.*",
+    "wonderwords.*"
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+pythonpath = "src/"
+python_files = "*_test.py"
+python_functions = "test_*"
+addopts = "--capture=tee-sys --cov=src --cov-report term-missing --xdoctest tests"
+filterwarnings = "ignore::DeprecationWarning"
+
+[tool.ruff]
+extend-exclude = [".pytest_cache", "docs/*"]
+# extend-ignore = ["E203"]
+# ignore = ["D100", "D107", "D205", "D212", "D415"]
+select = ["D"]
+target-version = "py311"
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
