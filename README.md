@@ -17,8 +17,8 @@ Python toolkit for using profilers with support for filtering, analysis and visu
 For more details on how to use profkit, you can refer to
 the [documentation](https://sinaninel.com/profkit/index.html).
 
-Credits
+Credits:
 
-[Origami icons created by Smashicons - Flaticon](https://www.flaticon.com/free-icons/origami)
+[Detective icons created by Freepik - Flaticon](https://www.flaticon.com/free-icons/detective)
 
 Copyright (c) 2023 Sinan Inel <sinan.inel@farsimple.com>
