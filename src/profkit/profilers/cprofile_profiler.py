@@ -20,30 +20,45 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Command line output of information about Profkit."""
+"""Profiler."""
+from __future__ import annotations
+
+import cProfile
+from typing import Any, Optional, Union
+
+from loguru import logger
+
+from profkit.profilers.profiler import Profiler
 
 
-def about() -> None:
-    """Provides information about Profkit."""
-    print(
-        "================================================================================"
-    )
-    print(
-        "Profkit: Python toolkit for using profilers "
-        "with support for filtering, analysis and visualization"
-    )
-    print(
-        "================================================================================"
-    )
-    print("Copyright (c) 2023 Sinan Inel <sinan.inel@farsimple.com>.")
-    print("")
-    print(f"Source:                    https://github.com/sinel/profkit")
-    print("Version:                    0.1.0")
-    print("Python Version:             3.11")
-    print(
-        "================================================================================"
-    )
+class CProfileProfiler(Profiler):
+    """CProfileProfiler class.
 
+    Args:
+        arg: ...
+    """
 
-if __name__ == "__main__":
-    about()
+    def __init__(self, arg: Optional[Any] = None):
+        """Initialize Profiler."""
+        super().__init__(arg)
+        self._profiler = cProfile.Profile()
+
+    def begin(self) -> Any:
+        """CProfiler.begin.
+
+        Begin profiling.
+
+        Returns:
+            Any
+        """
+        self._profiler.enable()
+
+    def end(self) -> Any:
+        """CProfiler.end.
+
+        End profiling.
+
+        Returns:
+            Any
+        """
+        self._profiler.disable()

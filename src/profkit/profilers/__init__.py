@@ -20,14 +20,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Tests used for debugging."""
-from __future__ import annotations
-
-
-def fibonacci(n: int) -> int:
-    """Calculates Fibonacci sequence."""
-    return n if n < 2 else fibonacci(n - 2) + fibonacci(n - 1)
-
-
-def exclude_test_debug() -> None:
-    """Unit test for debugging."""
+"""Empty __init__.py file for Python to recognize folder as package."""

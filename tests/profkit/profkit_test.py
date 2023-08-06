@@ -20,14 +20,21 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Tests used for debugging."""
+"""Tests used for profkit."""
 from __future__ import annotations
 
+from loguru import logger
+from pytest import CaptureFixture
 
-def fibonacci(n: int) -> int:
-    """Calculates Fibonacci sequence."""
-    return n if n < 2 else fibonacci(n - 2) + fibonacci(n - 1)
+from profkit.profkit import about
 
 
-def exclude_test_debug() -> None:
-    """Unit test for debugging."""
+def test_about(capsys: CaptureFixture) -> None:
+    """Unit test for about."""
+    about()
+    captured = capsys.readouterr()
+    all_outputs = captured.out.split("\n")
+    logger.debug(all_outputs)
+    python_version = all_outputs[-3]
+    logger.debug(python_version)
+    assert python_version == "Python Version:             3.11"

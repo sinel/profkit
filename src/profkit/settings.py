@@ -1,12 +1,12 @@
 #  ********************************************************************************
+#                        ______   _ __
+#      ____  _________  / __/ /__(_) /_    Python toolkit
+#     / __ \/ ___/ __ \/ /_/ //_/ / __/    for using profilers
+#    / /_/ / /  / /_/ / __/ ,< / / /_      with support for
+#   / .___/_/   \____/_/ /_/|_/_/\__/      filtering, analysis, and visualization
+#  /_/
 #
-#    _________ __________ _
-#   / ___/ __ `/ ___/ __ `/    Python toolkit
-#  / /__/ /_/ (__  ) /_/ /     for control and analysis
-#  \___/\__,_/____/\__, /      of superconducting qubits
-#                    /_/
-#
-#  Copyright (c) 2023 Sinan Inel <sinan.inel@aalto.fi>
+#  Copyright (c) 2023 Sinan Inel <sinan.inel@farsimple.com>
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -20,21 +20,20 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Tests used for debugging."""
+"""Settings."""
 from __future__ import annotations
 
-from loguru import logger
-from pytest import CaptureFixture
-
-from profkit.about import about
+from pydantic import BaseModel
+from pydantic_settings import BaseSettings
 
 
-def test_about(capsys: CaptureFixture) -> None:
-    """Unit test for about."""
-    about()
-    captured = capsys.readouterr()
-    all_outputs = captured.out.split("\n")
-    logger.debug(all_outputs)
-    python_version = all_outputs[-3]
-    logger.debug(python_version)
-    assert python_version == "Python Version:             3.11"
+class ProfilerSettings(BaseModel):
+    """Profiler settings."""
+
+    default: str = "yappi"
+
+
+class Settings(BaseSettings):
+    """Profkit settings."""
+
+    profiler: ProfilerSettings = ProfilerSettings()

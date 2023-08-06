@@ -20,14 +20,45 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Tests used for debugging."""
+"""Profiler."""
 from __future__ import annotations
 
+from typing import Any, Optional, Union
 
-def fibonacci(n: int) -> int:
-    """Calculates Fibonacci sequence."""
-    return n if n < 2 else fibonacci(n - 2) + fibonacci(n - 1)
+from loguru import logger
+import yappi
+
+from profkit.profilers.profiler import Profiler
 
 
-def exclude_test_debug() -> None:
-    """Unit test for debugging."""
+class YappiProfiler(Profiler):
+    """YappiProfiler class.
+
+    Args:
+        arg: ...
+    """
+
+    def __init__(self, arg: Optional[Any] = None):
+        """Initialize Profiler."""
+        super().__init__(arg)
+        self._profiler = yappi
+
+    def begin(self) -> Any:
+        """CProfiler.begin.
+
+        Begin profiling.
+
+        Returns:
+            Any
+        """
+        self._profiler.start()
+
+    def end(self) -> Any:
+        """CProfiler.end.
+
+        End profiling.
+
+        Returns:
+            Any
+        """
+        self._profiler.stop()

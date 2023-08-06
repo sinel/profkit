@@ -20,14 +20,42 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Tests used for debugging."""
+"""Profiler."""
 from __future__ import annotations
 
+from abc import abstractmethod
+from typing import Any, Optional, Union
 
-def fibonacci(n: int) -> int:
-    """Calculates Fibonacci sequence."""
-    return n if n < 2 else fibonacci(n - 2) + fibonacci(n - 1)
+from loguru import logger
 
 
-def exclude_test_debug() -> None:
-    """Unit test for debugging."""
+class Profiler:
+    """Profiler class.
+
+    Args:
+        arg: ...
+    """
+
+    def __init__(self, arg: Optional[Any] = None):
+        """Initialize Profiler."""
+        self.arg = arg
+
+    @abstractmethod
+    def begin(self) -> Any:
+        """Profiler.begin.
+
+        Begin profiling.
+
+        Returns:
+            Any
+        """
+
+    @abstractmethod
+    def end(self) -> Any:
+        """Profiler.end.
+
+        End profiling.
+
+        Returns:
+            Any
+        """
