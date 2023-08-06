@@ -9,12 +9,22 @@
 
 
 
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   profilers/index.rst
+
+
 Submodules
 ----------
 .. toctree::
    :titlesonly:
    :maxdepth: 1
 
-   about/index.rst
+   profkit/index.rst
+   settings/index.rst
 
 

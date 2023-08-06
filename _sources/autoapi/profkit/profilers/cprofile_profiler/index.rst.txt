@@ -1,0 +1,55 @@
+:py:mod:`profkit.profilers.cprofile_profiler`
+=============================================
+
+.. py:module:: profkit.profilers.cprofile_profiler
+
+.. autoapi-nested-parse::
+
+   Profiler.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   profkit.profilers.cprofile_profiler.CProfileProfiler
+
+
+
+
+.. py:class:: CProfileProfiler(arg: Optional[Any] = None)
+
+
+   Bases: :py:obj:`profkit.profilers.profiler.Profiler`
+
+   CProfileProfiler class.
+
+   Args:
+       arg: ...
+
+   .. py:method:: begin() -> Any
+
+      CProfiler.begin.
+
+      Begin profiling.
+
+      Returns:
+          Any
+
+
+   .. py:method:: end() -> Any
+
+      CProfiler.end.
+
+      End profiling.
+
+      Returns:
+          Any
+
+
+
