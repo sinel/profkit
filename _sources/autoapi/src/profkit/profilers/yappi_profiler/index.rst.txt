@@ -1,0 +1,95 @@
+:py:mod:`src.profkit.profilers.yappi_profiler`
+==============================================
+
+.. py:module:: src.profkit.profilers.yappi_profiler
+
+.. autoapi-nested-parse::
+
+   Profiler.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   src.profkit.profilers.yappi_profiler.YappiProfiler
+
+
+
+
+.. py:class:: YappiProfiler(settings: Optional[profkit.settings.ProfilerSettings] = None)
+
+
+   Bases: :py:obj:`profkit.profilers.profiler.Profiler`
+
+   YappiProfiler class.
+
+   Args:
+       settings: Profiler settings.
+
+   .. py:method:: begin() -> Any
+
+      YappiProfiler.begin.
+
+      Begin profiling.
+
+      Returns:
+          Any
+
+
+   .. py:method:: end() -> Any
+
+      YappiProfiler.end.
+
+      End profiling.
+
+      Returns:
+          Any
+
+
+   .. py:method:: output(output_type: profkit.profilers.profiler.Profiler.OutputType = Profiler.OutputType.TEXT) -> Any
+
+      YappiProfiler.export.
+
+      Exports profiler output in specified format.
+
+      Args:
+          output_type: Output type.
+
+      Returns:
+          Output in specified format.
+
+
+   .. py:method:: print(verbose: bool = False) -> None
+
+      YappiProfiler.end.
+
+      End profiling.
+
+      Args:
+          verbose: If True, prints more detailed info.
+
+      Returns:
+          Any
+
+
+   .. py:method:: save(output_type: profkit.profilers.profiler.Profiler.OutputType = Profiler.OutputType.TEXT, filepath: str = 'profkit.out') -> None
+
+      YappiProfiler.save.
+
+      End profiling.
+
+      Args:
+          output_type: Output type.
+          filepath: Path to file where output will be saved.
+
+      Returns:
+          Any
+
+
+

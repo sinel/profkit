@@ -1,0 +1,30 @@
+:py:mod:`src.profkit`
+=====================
+
+.. py:module:: src.profkit
+
+.. autoapi-nested-parse::
+
+   Empty __init__.py file for Python to recognize folder as package.
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   profilers/index.rst
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   profkit/index.rst
+   settings/index.rst
+
+

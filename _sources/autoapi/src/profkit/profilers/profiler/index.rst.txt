@@ -1,0 +1,121 @@
+:py:mod:`src.profkit.profilers.profiler`
+========================================
+
+.. py:module:: src.profkit.profilers.profiler
+
+.. autoapi-nested-parse::
+
+   Profiler.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   src.profkit.profilers.profiler.Profiler
+
+
+
+
+.. py:class:: Profiler(settings: Optional[profkit.settings.ProfilerSettings] = None)
+
+
+   Profiler class.
+
+   Args:
+       settings: Profiler settings.
+
+   .. py:class:: OutputType
+
+
+      Bases: :py:obj:`enum.StrEnum`
+
+      Export type enumeration.
+
+      .. py:attribute:: TEXT
+         :value: 'text'
+
+         
+
+      .. py:attribute:: PANDAS
+         :value: 'pandas'
+
+         
+
+      .. py:attribute:: PSTATS
+         :value: 'pstats'
+
+         
+
+
+   .. py:method:: begin() -> Any
+      :abstractmethod:
+
+      Profiler.begin.
+
+      Begin profiling.
+
+      Returns:
+          Any
+
+
+   .. py:method:: end() -> Any
+      :abstractmethod:
+
+      Profiler.end.
+
+      End profiling.
+
+      Returns:
+          Any
+
+
+   .. py:method:: output(output_type: OutputType = OutputType.TEXT) -> Any
+      :abstractmethod:
+
+      Profiler.export.
+
+      Exports profiler output in specified format.
+
+      Args:
+          output_type: Output type.
+
+      Returns:
+          Output in specified format.
+
+
+   .. py:method:: print(verbose: bool = False) -> None
+      :abstractmethod:
+
+      Profiler.end.
+
+      End profiling.
+
+      Args:
+          verbose: If True, prints more detailed info.
+
+      Returns:
+          Any
+
+
+   .. py:method:: save(output_type: OutputType = OutputType.TEXT, filepath: str = 'profkit.out') -> None
+      :abstractmethod:
+
+      Profiler.save.
+
+      End profiling.
+
+      Args:
+          output_type: Output type.
+          filepath: Path to file where output will be saved.
+
+      Returns:
+          Any
+
+
+

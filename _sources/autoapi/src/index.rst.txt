@@ -1,0 +1,20 @@
+:py:mod:`src`
+=============
+
+.. py:module:: src
+
+.. autoapi-nested-parse::
+
+   Empty __init__.py file for Python to recognize folder as package.
+
+
+
+Subpackages
+-----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 3
+
+   profkit/index.rst
+
+
