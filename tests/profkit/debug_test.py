@@ -24,10 +24,5 @@
 from __future__ import annotations
 
 
-def fibonacci(n: int) -> int:
-    """Calculates Fibonacci sequence."""
-    return n if n < 2 else fibonacci(n - 2) + fibonacci(n - 1)
-
-
 def exclude_test_debug() -> None:
     """Unit test for debugging."""

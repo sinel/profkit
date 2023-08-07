@@ -24,8 +24,9 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from enum import StrEnum
-from typing import Any, Optional
+from pathlib import Path
+import pstats
+from typing import Any, Optional, Union
 
 from profkit.settings import ProfilerSettings
 
@@ -36,13 +37,6 @@ class Profiler:
     Args:
         settings: Profiler settings.
     """
-
-    class OutputType(StrEnum):
-        """Export type enumeration."""
-
-        TEXT = "text"
-        PANDAS = "pandas"
-        PSTATS = "pstats"
 
     def __init__(self, settings: Optional[ProfilerSettings] = None) -> None:
         """Initialize Profiler."""
@@ -70,42 +64,53 @@ class Profiler:
         """
 
     @abstractmethod
-    def output(self, output_type: OutputType = OutputType.TEXT) -> Any:
-        """Profiler.export.
+    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+        """Profiler.output_to_text.
 
-        Exports profiler output in specified format.
+        Returns profiler output as text.
 
         Args:
-            output_type: Output type.
+            verbose: If True, outputs more detailed info.
+            filepath: If specified, output is saved.
 
         Returns:
-            Output in specified format.
+            Output as text.
+        """
+
+    @abstractmethod
+    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+        """Profiler.output_to_callgrind.
+
+        Returns profiler output in callgrind format.
+
+        Args:
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in callgrind format.
+        """
+
+    @abstractmethod
+    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+        """Profiler.output_to_pstats.
+
+        Returns profiler output in pstats format.
+
+        Args:
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in pstats format.
         """
 
     @abstractmethod
     def print(self, verbose: bool = False) -> None:
-        """Profiler.end.
+        """Profiler.print.
 
-        End profiling.
-
-        Args:
-            verbose: If True, prints more detailed info.
-
-        Returns:
-            Any
-        """
-
-    @abstractmethod
-    def save(
-        self, output_type: OutputType = OutputType.TEXT, filepath: str = "profkit.out"
-    ) -> None:
-        """Profiler.save.
-
-        End profiling.
+        Prints profiler output.
 
         Args:
-            output_type: Output type.
-            filepath: Path to file where output will be saved.
+            verbose: If True, outputs more detailed info.
 
         Returns:
             Any

@@ -25,7 +25,11 @@ from __future__ import annotations
 
 from contextlib import redirect_stdout
 from io import StringIO
-from typing import Any, Optional
+import os
+from pathlib import Path
+import pstats
+import sys
+from typing import Any, Optional, Union
 
 import yappi
 
@@ -65,63 +69,120 @@ class YappiProfiler(Profiler):
         """
         self._profiler.stop()
 
-    def output(
-        self, output_type: Profiler.OutputType = Profiler.OutputType.TEXT
-    ) -> Any:
-        """YappiProfiler.export.
+    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+        """YappiProfiler.output_to_text.
 
-        Exports profiler output in specified format.
+        Returns profiler output as text.
 
         Args:
-            output_type: Output type.
+            verbose: If True, outputs more detailed info.
+            filepath: If specified, output is saved.
 
         Returns:
-            Output in specified format.
+            Output as text.
         """
-        if output_type is Profiler.OutputType.PSTATS:
-            return self._profiler.convert2pstats(self._profiler.get_func_stats())
-        elif output_type is Profiler.OutputType.TEXT:
-            print_output = StringIO()
-            with redirect_stdout(print_output):
-                self._profiler.get_func_stats().print_all()
-            return print_output
-        else:
-            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
+        string_stream = StringIO()
+        self._profiler.get_func_stats().print_all(out=string_stream)
+        if filepath:
+            file_stream = open(filepath, "w")
+            self._profiler.get_func_stats().print_all(out=file_stream)
+        return string_stream.getvalue()
 
-    def print(self, verbose: bool = False) -> None:
-        """YappiProfiler.end.
+    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+        """YappiProfiler.output_to_callgrind.
 
-        End profiling.
+        Returns profiler output in callgrind format.
 
         Args:
-            verbose: If True, prints more detailed info.
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in callgrind format.
+        """
+        output = self._to_callgrind()
+        if filepath:
+            with open(filepath, "w") as f:
+                f.write("\n".join(output))
+        return output
+
+    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+        """YappiProfiler.output_to_pstats.
+
+        Returns profiler output in pstats format.
+
+        Args:
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in pstats format.
+        """
+        stats = self._profiler.get_func_stats()
+        if filepath:
+            stats.save(path=filepath, type="pstat")
+        return self._profiler.convert2pstats(stats)
+
+    def print(self, verbose: bool = False) -> None:
+        """YappiProfiler.print.
+
+        Prints profiler output.
+
+        Args:
+            verbose: If True, outputs more detailed info.
 
         Returns:
             Any
         """
         self._profiler.get_func_stats().print_all()
 
-    def save(
-        self,
-        output_type: Profiler.OutputType = Profiler.OutputType.TEXT,
-        filepath: str = "profkit.out",
-    ) -> None:
-        """YappiProfiler.save.
+    def _to_callgrind(self) -> list[str]:
+        """Converts output to callgrind format"""
+        stats = self._profiler.get_func_stats()
+        # ================================================================================
+        # Copy & paste from lines 928-966 in
+        # https://github.com/sumerc/yappi/blob/1.4.0/yappi/yappi.py
+        # ================================================================================
+        # BEGIN PASTE
+        # ================================================================================
+        header = """version: 1\ncreator: %s\npid: %d\ncmd:  %s\npart: 1\n\nevents: Ticks""" % \
+            ('yappi', os.getpid(), ' '.join(sys.argv))
 
-        End profiling.
+        lines = [header]
 
-        Args:
-            output_type: Output type.
-            filepath: Path to file where output will be saved.
+        # add function definitions
+        file_ids = ['']
+        func_ids = ['']
+        for func_stat in stats:
+            file_ids += ['fl=(%d) %s' % (func_stat.index, func_stat.module)]
+            func_ids += [
+                'fn=(%d) %s %s:%s' % (
+                    func_stat.index, func_stat.name, func_stat.module,
+                    func_stat.lineno
+                )
+            ]
 
-        Returns:
-            Any
-        """
-        if output_type is Profiler.OutputType.PSTATS:
-            self._profiler.get_func_stats().save(path=filepath, type="pstat")
-        elif output_type is Profiler.OutputType.TEXT:
-            with open(filepath, "w") as f:
-                with redirect_stdout(f):
-                    self._profiler.get_func_stats().print_all()
-        else:
-            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
+        lines += file_ids + func_ids
+
+        # add stats for each function we have a record of
+        for func_stat in stats:
+            func_stats = [
+                '',
+                'fl=(%d)' % func_stat.index,
+                'fn=(%d)' % func_stat.index
+            ]
+            func_stats += [
+                '%s %s' % (func_stat.lineno, int(func_stat.tsub * 1e6))
+            ]
+
+            # children functions stats
+            for child in func_stat.children:
+                func_stats += [
+                    'cfl=(%d)' % child.index,
+                    'cfn=(%d)' % child.index,
+                    'calls=%d 0' % child.ncall,
+                    '0 %d' % int(child.ttot * 1e6)
+                ]
+            lines += func_stats
+        # ================================================================================
+        # END PASTE
+        # ================================================================================
+        return lines

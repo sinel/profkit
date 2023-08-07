@@ -26,8 +26,12 @@ from __future__ import annotations
 import cProfile
 from contextlib import redirect_stdout
 from io import StringIO
+from loguru import logger
+from pathlib import Path
 import pstats
-from typing import Any, Optional
+import sys
+from typing import Any, Optional, Union
+import warnings
 
 from profkit.profilers.profiler import Profiler
 from profkit.settings import ProfilerSettings
@@ -64,67 +68,69 @@ class CProfileProfiler(Profiler):
             Any
         """
         self._profiler.disable()
+        self._profiler.create_stats()
 
-    def output(
-        self, output_type: Profiler.OutputType = Profiler.OutputType.TEXT
-    ) -> Any:
-        """CProfileProfiler.export.
+    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+        """CProfileProfiler.output_to_text.
 
-        Exports profiler output in specified format.
+        Returns profiler output as text.
 
         Args:
-            output_type: Output type.
+            verbose: If True, outputs more detailed info.
+            filepath: If specified, output is saved.
 
         Returns:
-            Output in specified format.
+            Output as text.
         """
-        pstats_obj = pstats.Stats(self._profiler)
-        if output_type is Profiler.OutputType.PSTATS:
-            return pstats_obj
-        elif output_type is Profiler.OutputType.TEXT:
-            print_output = StringIO()
-            with redirect_stdout(print_output):
-                pstats_obj.print_stats()
-            return print_output
-        else:
-            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
+        string_stream = StringIO()
+        pstats_string = pstats.Stats(self._profiler, stream=string_stream)
+        pstats_string.print_stats()
+        if filepath:
+            file_stream = open(filepath, "w")
+            pstats_file = pstats.Stats(self._profiler, stream=file_stream)
+            pstats_file.print_stats()
+        return string_stream.getvalue()
 
-    def print(self, verbose: bool = False) -> None:
-        """CProfileProfiler.end.
+    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+        """CProfileProfiler.output_to_callgrind.
 
-        End profiling.
+        Returns profiler output in callgrind format.
 
         Args:
-            verbose: If True, prints more detailed info.
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in callgrind format.
+        """
+        warnings.warn("Output to callgrind format is not supported for CProfile profiler.")
+        return None
+
+    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+        """CProfileProfiler.output_to_pstats.
+
+        Returns profiler output in pstats format.
+
+        Args:
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in pstats format.
+        """
+        pstats_obj = pstats.Stats(self._profiler)
+        if filepath:
+            pstats_obj.dump_stats(filepath)
+        return pstats_obj
+
+    def print(self, verbose: bool = False) -> None:
+        """CProfileProfiler.print.
+
+        Prints profiler output.
+
+        Args:
+            verbose: If True, outputs more detailed info.
 
         Returns:
             Any
         """
         pstats_obj = pstats.Stats(self._profiler)
         pstats_obj.print_stats()
-
-    def save(
-        self,
-        output_type: Profiler.OutputType = Profiler.OutputType.TEXT,
-        filepath: str = "profkit.out",
-    ) -> None:
-        """CProfileProfiler.save.
-
-        End profiling.
-
-        Args:
-            output_type: Output type.
-            filepath: Path to file where output will be saved.
-
-        Returns:
-            Any
-        """
-        pstats_obj = pstats.Stats(self._profiler)
-        if output_type is Profiler.OutputType.PSTATS:
-            pstats_obj.dump_stats(filepath)
-        elif output_type is Profiler.OutputType.TEXT:
-            with open(filepath, "w") as f:
-                with redirect_stdout(f):
-                    self.print()
-        else:
-            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")

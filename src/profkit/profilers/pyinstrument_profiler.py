@@ -23,8 +23,10 @@
 """Profiler."""
 from __future__ import annotations
 
+from pathlib import Path
 import pstats
-from typing import Any, Optional
+from typing import Any, Optional, Union
+import warnings
 
 import pyinstrument
 from pyinstrument.renderers import PstatsRenderer
@@ -65,61 +67,63 @@ class PyInstrumentProfiler(Profiler):
         """
         self._profiler.stop()
 
-    def output(
-        self, output_type: Profiler.OutputType = Profiler.OutputType.TEXT
-    ) -> Any:
-        """PyInstrumentProfiler.export.
+    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+        """PyInstrumentProfiler.output_to_text.
 
-        Exports profiler output in specified format.
+        Returns profiler output as text.
 
         Args:
-            output_type: Output type.
+            verbose: If True, outputs more detailed info.
+            filepath: If specified, output is saved.
 
         Returns:
-            Output in specified format.
+            Output as text.
         """
-        if output_type is Profiler.OutputType.PSTATS:
-            return self._profiler.output(PstatsRenderer())
-        elif output_type is Profiler.OutputType.TEXT:
-            return self._profiler.output_text()
-        else:
-            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
+        if filepath:
+            with open(filepath, "w") as f:
+                self._profiler.print(file=f)
+        return self._profiler.output_text()
 
-    def print(self, verbose: bool = False) -> None:
-        """PyInstrumentProfiler.end.
+    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+        """CProfileProfiler.output_to_callgrind.
 
-        End profiling.
+        Returns profiler output in callgrind format.
 
         Args:
-            verbose: If True, prints more detailed info.
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in callgrind format.
+        """
+        warnings.warn("Output to callgrind format is not supported for CProfile profiler.")
+        return None
+
+    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+        """PyInstrumentProfiler.output_to_pstats.
+
+        Returns profiler output in pstats format.
+
+        Args:
+            filepath: If specified, output is saved.
+
+        Returns:
+            Output in pstats format.
+        """
+        output = self._profiler.output(PstatsRenderer())
+        pstats_obj = pstats.Stats(output)
+        if filepath:
+            pstats_obj.dump_stats(filepath)
+        return pstats_obj
+
+    def print(self, verbose: bool = False) -> None:
+        """PyInstrumentProfiler.print.
+
+        Prints profiler output.
+
+        Args:
+            verbose: If True, outputs more detailed info.
 
         Returns:
             Any
         """
         self._profiler.print()
-
-    def save(
-        self,
-        output_type: Profiler.OutputType = Profiler.OutputType.TEXT,
-        filepath: str = "profkit.out",
-    ) -> None:
-        """PyInstrumentProfiler.save.
-
-        End profiling.
-
-        Args:
-            output_type: Output type.
-            filepath: Path to file where output will be saved.
-
-        Returns:
-            Any
-        """
-        if output_type is Profiler.OutputType.PSTATS:
-            output = self._profiler.output(PstatsRenderer())
-            pstats_obj = pstats.Stats(output)
-            pstats_obj.dump_stats(filepath)
-        elif output_type is Profiler.OutputType.TEXT:
-            with open(filepath, "w") as f:
-                self._profiler.print(file=f)
-        else:
-            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")

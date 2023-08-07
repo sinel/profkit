@@ -20,21 +20,4 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #  ********************************************************************************
-"""Settings."""
-from __future__ import annotations
-
-from pydantic import BaseModel
-from pydantic_settings import BaseSettings
-
-
-class ProfilerSettings(BaseModel):
-    """Profiler settings."""
-
-    clock_type: str = "wall"
-
-
-class Settings(BaseSettings):
-    """Profkit settings."""
-
-    default_profiler: str = "yappi"
-    profiler: ProfilerSettings = ProfilerSettings()
+"""Empty __init__.py file for Python to recognize folder as package."""

@@ -23,7 +23,6 @@
 """Tests used for profkit."""
 from __future__ import annotations
 
-from loguru import logger
 from pytest import CaptureFixture
 
 from profkit.profkit import about
@@ -34,7 +33,5 @@ def test_about(capsys: CaptureFixture) -> None:
     about()
     captured = capsys.readouterr()
     all_outputs = captured.out.split("\n")
-    logger.debug(all_outputs)
     python_version = all_outputs[-3]
-    logger.debug(python_version)
     assert python_version == "Python Version:             3.11"
