@@ -67,7 +67,7 @@ class Profkit:
         self.settings = self.settings.model_copy(update=settings, deep=True)
         self._profilers: dict[str, Profiler] = {}
 
-    def _has_profiler(self, name: str) -> bool:
+    def has_profiler(self, name: str) -> bool:
         """Checks if profkit instance has profiler.
 
         Args:
@@ -75,7 +75,7 @@ class Profkit:
         """
         return name in self._profilers
 
-    def _get_profiler(self, name: str) -> Optional[Profiler]:
+    def get_profiler(self, name: str) -> Optional[Profiler]:
         """Gets profiler.
 
         Args:
@@ -83,7 +83,7 @@ class Profkit:
         """
         return self._profilers.get(name, None)
 
-    def _add_profiler(
+    def add_profiler(
         self,
         name: Optional[str] = None,
         profiler: Optional[Union[Profiler, ProfilerLibrary]] = None,
@@ -100,11 +100,11 @@ class Profkit:
         if isinstance(profiler, Profiler):
             self._profilers[name] = profiler
         else:
-            profiler = self._create_profiler(profiler)
+            profiler = self.create_profiler(profiler)
             self._profilers[name] = profiler
         return name, profiler
 
-    def _remove_profiler(self, name: str) -> None:
+    def remove_profiler(self, name: str) -> None:
         """Removes profiler.
 
         Args:
@@ -112,7 +112,7 @@ class Profkit:
         """
         del self._profilers[name]
 
-    def _create_profiler(
+    def create_profiler(
         self, profiler_library: Optional[ProfilerLibrary] = None
     ) -> Profiler:
         """Creates profiler.
@@ -152,7 +152,7 @@ class Profkit:
         def wrapper(func: Callable) -> Any:
             @functools.wraps(func)
             def wrapped(*args: Any, **kwargs: Any) -> Any:
-                _, profiler = self._add_profiler(func.__name__, library)
+                _, profiler = self.add_profiler(func.__name__, library)
                 profiler.begin()
                 result = func(*args, **kwargs)
                 profiler.end()
@@ -166,7 +166,7 @@ class Profkit:
 
 
 def about() -> None:
-    """Provides information about Profkit."""
+    """Provides information about profkit."""
     print(
         "================================================================================"
     )

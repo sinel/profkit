@@ -23,24 +23,26 @@
 """Profiler."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+import pstats
+from typing import Any, Optional
 
-from loguru import logger
 import pyinstrument
+from pyinstrument.renderers import PstatsRenderer
 
 from profkit.profilers.profiler import Profiler
+from profkit.settings import ProfilerSettings
 
 
 class PyInstrumentProfiler(Profiler):
     """PyInstrumentProfiler class.
 
     Args:
-        arg: ...
+        settings: Profiler settings.
     """
 
-    def __init__(self, arg: Optional[Any] = None):
+    def __init__(self, settings: Optional[ProfilerSettings] = None):
         """Initialize PyInstrumentProfiler."""
-        super().__init__(arg)
+        super().__init__(settings)
         self._profiler = pyinstrument.Profiler()
 
     def begin(self) -> Any:
@@ -62,3 +64,62 @@ class PyInstrumentProfiler(Profiler):
             Any
         """
         self._profiler.stop()
+
+    def output(
+        self, output_type: Profiler.OutputType = Profiler.OutputType.TEXT
+    ) -> Any:
+        """PyInstrumentProfiler.export.
+
+        Exports profiler output in specified format.
+
+        Args:
+            output_type: Output type.
+
+        Returns:
+            Output in specified format.
+        """
+        if output_type is Profiler.OutputType.PSTATS:
+            return self._profiler.output(PstatsRenderer())
+        elif output_type is Profiler.OutputType.TEXT:
+            return self._profiler.output_text()
+        else:
+            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
+
+    def print(self, verbose: bool = False) -> None:
+        """PyInstrumentProfiler.end.
+
+        End profiling.
+
+        Args:
+            verbose: If True, prints more detailed info.
+
+        Returns:
+            Any
+        """
+        self._profiler.print()
+
+    def save(
+        self,
+        output_type: Profiler.OutputType = Profiler.OutputType.TEXT,
+        filepath: str = "profkit.out",
+    ) -> None:
+        """PyInstrumentProfiler.save.
+
+        End profiling.
+
+        Args:
+            output_type: Output type.
+            filepath: Path to file where output will be saved.
+
+        Returns:
+            Any
+        """
+        if output_type is Profiler.OutputType.PSTATS:
+            output = self._profiler.output(PstatsRenderer())
+            pstats_obj = pstats.Stats(output)
+            pstats_obj.dump_stats(filepath)
+        elif output_type is Profiler.OutputType.TEXT:
+            with open(filepath, "w") as f:
+                self._profiler.print(file=f)
+        else:
+            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")

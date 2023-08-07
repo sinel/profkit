@@ -24,21 +24,30 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, Optional, Union
+from enum import StrEnum
+from typing import Any, Optional
 
-from loguru import logger
+from profkit.settings import ProfilerSettings
 
 
 class Profiler:
     """Profiler class.
 
     Args:
-        arg: ...
+        settings: Profiler settings.
     """
 
-    def __init__(self, arg: Optional[Any] = None):
+    class OutputType(StrEnum):
+        """Export type enumeration."""
+
+        TEXT = "text"
+        PANDAS = "pandas"
+        PSTATS = "pstats"
+
+    def __init__(self, settings: Optional[ProfilerSettings] = None) -> None:
         """Initialize Profiler."""
-        self.arg = arg
+        self.settings = settings if settings else ProfilerSettings()
+        self._profiler: Any
 
     @abstractmethod
     def begin(self) -> Any:
@@ -55,6 +64,48 @@ class Profiler:
         """Profiler.end.
 
         End profiling.
+
+        Returns:
+            Any
+        """
+
+    @abstractmethod
+    def output(self, output_type: OutputType = OutputType.TEXT) -> Any:
+        """Profiler.export.
+
+        Exports profiler output in specified format.
+
+        Args:
+            output_type: Output type.
+
+        Returns:
+            Output in specified format.
+        """
+
+    @abstractmethod
+    def print(self, verbose: bool = False) -> None:
+        """Profiler.end.
+
+        End profiling.
+
+        Args:
+            verbose: If True, prints more detailed info.
+
+        Returns:
+            Any
+        """
+
+    @abstractmethod
+    def save(
+        self, output_type: OutputType = OutputType.TEXT, filepath: str = "profkit.out"
+    ) -> None:
+        """Profiler.save.
+
+        End profiling.
+
+        Args:
+            output_type: Output type.
+            filepath: Path to file where output will be saved.
 
         Returns:
             Any

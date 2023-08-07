@@ -23,28 +23,30 @@
 """Profiler."""
 from __future__ import annotations
 
-from typing import Any, Optional, Union
+from contextlib import redirect_stdout
+from io import StringIO
+from typing import Any, Optional
 
-from loguru import logger
 import yappi
 
 from profkit.profilers.profiler import Profiler
+from profkit.settings import ProfilerSettings
 
 
 class YappiProfiler(Profiler):
     """YappiProfiler class.
 
     Args:
-        arg: ...
+        settings: Profiler settings.
     """
 
-    def __init__(self, arg: Optional[Any] = None):
+    def __init__(self, settings: Optional[ProfilerSettings] = None):
         """Initialize Profiler."""
-        super().__init__(arg)
+        super().__init__(settings)
         self._profiler = yappi
 
     def begin(self) -> Any:
-        """CProfiler.begin.
+        """YappiProfiler.begin.
 
         Begin profiling.
 
@@ -54,7 +56,7 @@ class YappiProfiler(Profiler):
         self._profiler.start()
 
     def end(self) -> Any:
-        """CProfiler.end.
+        """YappiProfiler.end.
 
         End profiling.
 
@@ -62,3 +64,64 @@ class YappiProfiler(Profiler):
             Any
         """
         self._profiler.stop()
+
+    def output(
+        self, output_type: Profiler.OutputType = Profiler.OutputType.TEXT
+    ) -> Any:
+        """YappiProfiler.export.
+
+        Exports profiler output in specified format.
+
+        Args:
+            output_type: Output type.
+
+        Returns:
+            Output in specified format.
+        """
+        if output_type is Profiler.OutputType.PSTATS:
+            return self._profiler.convert2pstats(self._profiler.get_func_stats())
+        elif output_type is Profiler.OutputType.TEXT:
+            print_output = StringIO()
+            with redirect_stdout(print_output):
+                self._profiler.get_func_stats().print_all()
+            return print_output
+        else:
+            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
+
+    def print(self, verbose: bool = False) -> None:
+        """YappiProfiler.end.
+
+        End profiling.
+
+        Args:
+            verbose: If True, prints more detailed info.
+
+        Returns:
+            Any
+        """
+        self._profiler.get_func_stats().print_all()
+
+    def save(
+        self,
+        output_type: Profiler.OutputType = Profiler.OutputType.TEXT,
+        filepath: str = "profkit.out",
+    ) -> None:
+        """YappiProfiler.save.
+
+        End profiling.
+
+        Args:
+            output_type: Output type.
+            filepath: Path to file where output will be saved.
+
+        Returns:
+            Any
+        """
+        if output_type is Profiler.OutputType.PSTATS:
+            self._profiler.get_func_stats().save(path=filepath, type="pstat")
+        elif output_type is Profiler.OutputType.TEXT:
+            with open(filepath, "w") as f:
+                with redirect_stdout(f):
+                    self._profiler.get_func_stats().print_all()
+        else:
+            raise ValueError(f"{Profiler.OutputType.PANDAS} is not yet supported.")
