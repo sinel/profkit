@@ -30,9 +30,9 @@ Classes
 
    Profiler settings.
 
-   .. py:attribute:: default
+   .. py:attribute:: clock_type
       :type: str
-      :value: 'yappi'
+      :value: 'wall'
 
       
 
@@ -43,6 +43,12 @@ Classes
    Bases: :py:obj:`pydantic_settings.BaseSettings`
 
    Profkit settings.
+
+   .. py:attribute:: default_profiler
+      :type: str
+      :value: 'yappi'
+
+      
 
    .. py:attribute:: profiler
       :type: ProfilerSettings

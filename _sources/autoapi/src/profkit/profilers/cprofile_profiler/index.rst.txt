@@ -52,41 +52,54 @@ Classes
           Any
 
 
-   .. py:method:: output(output_type: profkit.profilers.profiler.Profiler.OutputType = Profiler.OutputType.TEXT) -> Any
+   .. py:method:: output_to_text(verbose: bool = False, filepath: Optional[Union[str, pathlib.Path]] = None) -> str
 
-      CProfileProfiler.export.
+      CProfileProfiler.output_to_text.
 
-      Exports profiler output in specified format.
+      Returns profiler output as text.
 
       Args:
-          output_type: Output type.
+          verbose: If True, outputs more detailed info.
+          filepath: If specified, output is saved.
 
       Returns:
-          Output in specified format.
+          Output as text.
+
+
+   .. py:method:: output_to_callgrind(filepath: Optional[Union[str, pathlib.Path]] = None) -> Optional[list[str]]
+
+      CProfileProfiler.output_to_callgrind.
+
+      Returns profiler output in callgrind format.
+
+      Args:
+          filepath: If specified, output is saved.
+
+      Returns:
+          Output in callgrind format.
+
+
+   .. py:method:: output_to_pstats(filepath: Optional[Union[str, pathlib.Path]] = None) -> pstats.Stats
+
+      CProfileProfiler.output_to_pstats.
+
+      Returns profiler output in pstats format.
+
+      Args:
+          filepath: If specified, output is saved.
+
+      Returns:
+          Output in pstats format.
 
 
    .. py:method:: print(verbose: bool = False) -> None
 
-      CProfileProfiler.end.
+      CProfileProfiler.print.
 
-      End profiling.
-
-      Args:
-          verbose: If True, prints more detailed info.
-
-      Returns:
-          Any
-
-
-   .. py:method:: save(output_type: profkit.profilers.profiler.Profiler.OutputType = Profiler.OutputType.TEXT, filepath: str = 'profkit.out') -> None
-
-      CProfileProfiler.save.
-
-      End profiling.
+      Prints profiler output.
 
       Args:
-          output_type: Output type.
-          filepath: Path to file where output will be saved.
+          verbose: If True, outputs more detailed info.
 
       Returns:
           Any
