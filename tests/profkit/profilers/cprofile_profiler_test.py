@@ -125,6 +125,6 @@ def test_print(
     profiler.end()
     profiler.print()
     captured = capsys.readouterr()
-    all_outputs = captured.out.split("\n")
-    headers = all_outputs[4]
+    lines = captured.out.split("\n")
+    headers = lines[4]
     assert headers == HEADERS

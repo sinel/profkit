@@ -30,16 +30,16 @@ from loguru import logger
 import pytest
 from typing import Callable
 
-from profkit.profilers.yappi_profiler import YappiProfiler
+from profkit.profilers.pyinstrument_profiler import PyInstrumentProfiler
 
-HEADERS = "name                                  ncall  tsub      ttot      tavg"
+HEADERS = "   ncalls  tottime  percall  cumtime  percall filename:lineno(function)"
 
 
 def test_profiler(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
 ) -> None:
-    """Unit test for YappiProfiler."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
@@ -49,21 +49,23 @@ def test_profiler(
 def test_output_to_text(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
 ) -> None:
-    """Unit test for YappiProfiler.output_to_text."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler.output_to_text."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
     profiler.end()
-    output = profiler.output_to_text()
-    assert HEADERS in output
+    output = profiler.output_to_text(verbose=True)
+    assert "Recorded:" in output
+    assert "Samples:" in output
+    assert "Program:" in output
 
 
 def test_output_to_text_file(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
 ) -> None:
-    """Unit test for YappiProfiler.output_to_text with file."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler.output_to_text with file."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
@@ -71,46 +73,29 @@ def test_output_to_text_file(
     filepath = tmp_path / "test.out"
     profiler.output_to_text(filepath=filepath)
     output = filepath.read_text()
-    assert HEADERS in output
+    assert "Recorded:" in output
+    assert "Samples:" in output
+    assert "Program:" in output
 
 
 def test_output_to_callgrind(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
 ) -> None:
-    """Unit test for YappiProfiler.output_to_callgrind."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler.output_to_callgrind."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
     profiler.end()
-    output = profiler.output_to_callgrind()
-    lines = output[0].split("\n")
-    assert lines[0] == "version: 1"
-    assert lines[1] == "creator: yappi"
-
-
-def test_output_to_callgrind_file(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
-) -> None:
-    """Unit test for YappiProfiler.output_to_callgrind."""
-    profiler = YappiProfiler()
-    profiler.begin()
-    for f in profiler_test_functions:
-        f()
-    profiler.end()
-    filepath = tmp_path / "test.out"
-    profiler.output_to_callgrind(filepath=filepath)
-    with open(filepath, "r") as f:
-        output = f.read()
-    assert "version: 1" in output
-    assert "creator: yappi" in output
+    with pytest.warns(Warning, match="Output to callgrind format is not supported for PyInstrument profiler."):
+        profiler.output_to_callgrind()
 
 
 def test_output_to_pstats(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
 ) -> None:
-    """Unit test for YappiProfiler.output_to_pstats."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler.output_to_pstats."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
@@ -122,8 +107,8 @@ def test_output_to_pstats(
 def test_output_to_pstats_file(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
 ) -> None:
-    """Unit test for YappiProfiler.output_to_pstats with file."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler.output_to_pstats with file."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
@@ -137,16 +122,16 @@ def test_output_to_pstats_file(
 def test_print(
     profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
 ) -> None:
-    """Unit test for YappiProfiler.print."""
-    profiler = YappiProfiler()
+    """Unit test for PyInstrumentProfiler.print."""
+    profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
     profiler.end()
     profiler.print()
-    # TO-DO: capsys not working for yappi - why?
+    # TO-DO: capsys not working for pyinstrument - why?
     captured = capsys.readouterr()
-    logger.debug(f"YAPPI PRINT CAPTURED = {captured}")
+    logger.debug(f"PYINSTRUMENT PRINT = {captured}")
     # lines = captured.out.split("\n")
     # headers = lines[4]
     # assert headers == HEADERS

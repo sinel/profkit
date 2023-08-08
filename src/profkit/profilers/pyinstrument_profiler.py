@@ -25,9 +25,11 @@ from __future__ import annotations
 
 from pathlib import Path
 import pstats
+from tempfile import NamedTemporaryFile
 from typing import Any, Optional, Union
 import warnings
 
+from loguru import logger
 import pyinstrument
 from pyinstrument.renderers import PstatsRenderer
 
@@ -80,12 +82,12 @@ class PyInstrumentProfiler(Profiler):
             Output as text.
         """
         if filepath:
-            with open(filepath, "w") as f:
-                self._profiler.print(file=f)
-        return self._profiler.output_text()
+            file_stream = open(filepath, "w")
+            self._profiler.print(file=file_stream)
+        return self._profiler.output_text(show_all=verbose)
 
     def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
-        """CProfileProfiler.output_to_callgrind.
+        """PyInstrumentProfiler.output_to_callgrind.
 
         Returns profiler output in callgrind format.
 
@@ -95,7 +97,7 @@ class PyInstrumentProfiler(Profiler):
         Returns:
             Output in callgrind format.
         """
-        warnings.warn("Output to callgrind format is not supported for CProfile profiler.")
+        warnings.warn("Output to callgrind format is not supported for PyInstrument profiler.")
         return None
 
     def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
@@ -110,7 +112,12 @@ class PyInstrumentProfiler(Profiler):
             Output in pstats format.
         """
         output = self._profiler.output(PstatsRenderer())
-        pstats_obj = pstats.Stats(output)
+        temp_file = NamedTemporaryFile()
+        with open(temp_file.name, "w", encoding="utf-8", errors="surrogateescape") as f:
+            f.write(output)
+        pstats_obj = pstats.Stats(temp_file.name)
+        temp_file.close()
+        logger.debug(f"PYINSTRUMENT PSTATS = {pstats_obj}")
         if filepath:
             pstats_obj.dump_stats(filepath)
         return pstats_obj
