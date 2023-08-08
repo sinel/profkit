@@ -25,10 +25,10 @@ from __future__ import annotations
 
 from pathlib import Path
 import pstats
+from typing import Callable
 
 from loguru import logger
 import pytest
-from typing import Callable
 
 from profkit.profilers.pyinstrument_profiler import PyInstrumentProfiler
 
@@ -46,9 +46,7 @@ def test_profiler(
     profiler.end()
 
 
-def test_output_to_text(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
-) -> None:
+def test_output_to_text(profiler_test_functions: list[Callable]) -> None:
     """Unit test for PyInstrumentProfiler.output_to_text."""
     profiler = PyInstrumentProfiler()
     profiler.begin()
@@ -62,7 +60,7 @@ def test_output_to_text(
 
 
 def test_output_to_text_file(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
+    profiler_test_functions: list[Callable], tmp_path: Path
 ) -> None:
     """Unit test for PyInstrumentProfiler.output_to_text with file."""
     profiler = PyInstrumentProfiler()
@@ -78,22 +76,21 @@ def test_output_to_text_file(
     assert "Program:" in output
 
 
-def test_output_to_callgrind(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
-) -> None:
+def test_output_to_callgrind(profiler_test_functions: list[Callable]) -> None:
     """Unit test for PyInstrumentProfiler.output_to_callgrind."""
     profiler = PyInstrumentProfiler()
     profiler.begin()
     for f in profiler_test_functions:
         f()
     profiler.end()
-    with pytest.warns(Warning, match="Output to callgrind format is not supported for PyInstrument profiler."):
+    with pytest.warns(
+        Warning,
+        match="Output to callgrind format is not supported for PyInstrument profiler.",
+    ):
         profiler.output_to_callgrind()
 
 
-def test_output_to_pstats(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
-) -> None:
+def test_output_to_pstats(profiler_test_functions: list[Callable]) -> None:
     """Unit test for PyInstrumentProfiler.output_to_pstats."""
     profiler = PyInstrumentProfiler()
     profiler.begin()
@@ -105,7 +102,9 @@ def test_output_to_pstats(
 
 
 def test_output_to_pstats_file(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
+    profiler_test_functions: list[Callable],
+    capsys: pytest.CaptureFixture,
+    tmp_path: Path,
 ) -> None:
     """Unit test for PyInstrumentProfiler.output_to_pstats with file."""
     profiler = PyInstrumentProfiler()
@@ -117,6 +116,10 @@ def test_output_to_pstats_file(
     profiler.output_to_pstats(filepath=filepath)
     stats = pstats.Stats(str(filepath.absolute()))
     stats.print_stats()
+    captured = capsys.readouterr()
+    lines = captured.out.split("\n")
+    headers = lines[6]
+    assert headers == HEADERS
 
 
 def test_print(

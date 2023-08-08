@@ -25,13 +25,16 @@ from __future__ import annotations
 
 from pathlib import Path
 import pstats
+from typing import Callable
 
 from loguru import logger
 import pytest
-from typing import Callable
 
 from profkit.profilers.yappi_profiler import YappiProfiler
 
+PSTATS_HEADERS = (
+    "   ncalls  tottime  percall  cumtime  percall filename:lineno(function)"
+)
 HEADERS = "name                                  ncall  tsub      ttot      tavg"
 
 
@@ -46,9 +49,7 @@ def test_profiler(
     profiler.end()
 
 
-def test_output_to_text(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
-) -> None:
+def test_output_to_text(profiler_test_functions: list[Callable]) -> None:
     """Unit test for YappiProfiler.output_to_text."""
     profiler = YappiProfiler()
     profiler.begin()
@@ -60,7 +61,7 @@ def test_output_to_text(
 
 
 def test_output_to_text_file(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
+    profiler_test_functions: list[Callable], tmp_path: Path
 ) -> None:
     """Unit test for YappiProfiler.output_to_text with file."""
     profiler = YappiProfiler()
@@ -74,9 +75,7 @@ def test_output_to_text_file(
     assert HEADERS in output
 
 
-def test_output_to_callgrind(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
-) -> None:
+def test_output_to_callgrind(profiler_test_functions: list[Callable]) -> None:
     """Unit test for YappiProfiler.output_to_callgrind."""
     profiler = YappiProfiler()
     profiler.begin()
@@ -84,13 +83,14 @@ def test_output_to_callgrind(
         f()
     profiler.end()
     output = profiler.output_to_callgrind()
+    assert isinstance(output, list)
     lines = output[0].split("\n")
     assert lines[0] == "version: 1"
     assert lines[1] == "creator: yappi"
 
 
 def test_output_to_callgrind_file(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
+    profiler_test_functions: list[Callable], tmp_path: Path
 ) -> None:
     """Unit test for YappiProfiler.output_to_callgrind."""
     profiler = YappiProfiler()
@@ -100,15 +100,13 @@ def test_output_to_callgrind_file(
     profiler.end()
     filepath = tmp_path / "test.out"
     profiler.output_to_callgrind(filepath=filepath)
-    with open(filepath, "r") as f:
-        output = f.read()
+    with open(filepath, "r") as f:  # type: ignore
+        output = f.read()  # type: ignore
     assert "version: 1" in output
     assert "creator: yappi" in output
 
 
-def test_output_to_pstats(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture
-) -> None:
+def test_output_to_pstats(profiler_test_functions: list[Callable]) -> None:
     """Unit test for YappiProfiler.output_to_pstats."""
     profiler = YappiProfiler()
     profiler.begin()
@@ -120,7 +118,9 @@ def test_output_to_pstats(
 
 
 def test_output_to_pstats_file(
-    profiler_test_functions: list[Callable], capsys: pytest.CaptureFixture, tmp_path: Path
+    profiler_test_functions: list[Callable],
+    capsys: pytest.CaptureFixture,
+    tmp_path: Path,
 ) -> None:
     """Unit test for YappiProfiler.output_to_pstats with file."""
     profiler = YappiProfiler()
@@ -132,6 +132,10 @@ def test_output_to_pstats_file(
     profiler.output_to_pstats(filepath=filepath)
     stats = pstats.Stats(str(filepath.absolute()))
     stats.print_stats()
+    captured = capsys.readouterr()
+    lines = captured.out.split("\n")
+    headers = lines[6]
+    assert headers == PSTATS_HEADERS
 
 
 def test_print(

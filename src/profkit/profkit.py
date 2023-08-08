@@ -60,7 +60,7 @@ class Profkit:
     ):
         """Initialize Profiler."""
         settings_file = Path(__file__).parent / filepath
-        if not settings_file.is_file():
+        if settings_file.is_file():
             self.settings = parse_yaml_file_as(Settings, settings_file)
         else:
             self.settings = Settings()
@@ -124,15 +124,13 @@ class Profkit:
             :py:class:`profkit.profiler.Profiler`
         """
         if profiler_library is None:
-            profiler_library = Profkit.ProfilerLibrary(self.settings.profiler.default)
+            profiler_library = Profkit.ProfilerLibrary(self.settings.default_profiler)
         if profiler_library is Profkit.ProfilerLibrary.CPROFILE:
             return CProfileProfiler(self.settings.profiler)
         elif profiler_library is Profkit.ProfilerLibrary.PYINSTRUMENT:
             return PyInstrumentProfiler(self.settings.profiler)
-        elif profiler_library is Profkit.ProfilerLibrary.YAPPI:
-            return YappiProfiler(self.settings.profiler)
         else:
-            raise ValueError(f"Unsupported profiler library: {profiler_library.name}.")
+            return YappiProfiler(self.settings.profiler)
 
     def profile(
         self,

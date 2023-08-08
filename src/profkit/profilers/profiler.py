@@ -64,7 +64,9 @@ class Profiler:
         """
 
     @abstractmethod
-    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+    def output_to_text(
+        self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None
+    ) -> str:
         """Profiler.output_to_text.
 
         Returns profiler output as text.
@@ -78,7 +80,9 @@ class Profiler:
         """
 
     @abstractmethod
-    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+    def output_to_callgrind(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> Optional[list[str]]:
         """Profiler.output_to_callgrind.
 
         Returns profiler output in callgrind format.
@@ -91,7 +95,9 @@ class Profiler:
         """
 
     @abstractmethod
-    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+    def output_to_pstats(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> pstats.Stats:
         """Profiler.output_to_pstats.
 
         Returns profiler output in pstats format.

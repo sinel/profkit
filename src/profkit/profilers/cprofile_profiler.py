@@ -26,12 +26,13 @@ from __future__ import annotations
 import cProfile
 from contextlib import redirect_stdout
 from io import StringIO
-from loguru import logger
 from pathlib import Path
 import pstats
 import sys
 from typing import Any, Optional, Union
 import warnings
+
+from loguru import logger
 
 from profkit.profilers.profiler import Profiler
 from profkit.settings import ProfilerSettings
@@ -70,7 +71,9 @@ class CProfileProfiler(Profiler):
         self._profiler.disable()
         self._profiler.create_stats()
 
-    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+    def output_to_text(
+        self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None
+    ) -> str:
         """CProfileProfiler.output_to_text.
 
         Returns profiler output as text.
@@ -91,7 +94,9 @@ class CProfileProfiler(Profiler):
             pstats_file.print_stats()
         return string_stream.getvalue()
 
-    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+    def output_to_callgrind(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> Optional[list[str]]:
         """CProfileProfiler.output_to_callgrind.
 
         Returns profiler output in callgrind format.
@@ -102,10 +107,14 @@ class CProfileProfiler(Profiler):
         Returns:
             Output in callgrind format.
         """
-        warnings.warn("Output to callgrind format is not supported for CProfile profiler.")
+        warnings.warn(
+            "Output to callgrind format is not supported for CProfile profiler."
+        )
         return None
 
-    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+    def output_to_pstats(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> pstats.Stats:
         """CProfileProfiler.output_to_pstats.
 
         Returns profiler output in pstats format.

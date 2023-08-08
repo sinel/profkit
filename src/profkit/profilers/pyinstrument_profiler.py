@@ -69,7 +69,9 @@ class PyInstrumentProfiler(Profiler):
         """
         self._profiler.stop()
 
-    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+    def output_to_text(
+        self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None
+    ) -> str:
         """PyInstrumentProfiler.output_to_text.
 
         Returns profiler output as text.
@@ -84,9 +86,12 @@ class PyInstrumentProfiler(Profiler):
         if filepath:
             file_stream = open(filepath, "w")
             self._profiler.print(file=file_stream)
-        return self._profiler.output_text(show_all=verbose)
+        output: str = self._profiler.output_text(show_all=verbose)
+        return output
 
-    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+    def output_to_callgrind(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> Optional[list[str]]:
         """PyInstrumentProfiler.output_to_callgrind.
 
         Returns profiler output in callgrind format.
@@ -97,10 +102,14 @@ class PyInstrumentProfiler(Profiler):
         Returns:
             Output in callgrind format.
         """
-        warnings.warn("Output to callgrind format is not supported for PyInstrument profiler.")
+        warnings.warn(
+            "Output to callgrind format is not supported for PyInstrument profiler."
+        )
         return None
 
-    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+    def output_to_pstats(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> pstats.Stats:
         """PyInstrumentProfiler.output_to_pstats.
 
         Returns profiler output in pstats format.

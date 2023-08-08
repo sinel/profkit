@@ -69,7 +69,9 @@ class YappiProfiler(Profiler):
         """
         self._profiler.stop()
 
-    def output_to_text(self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None) -> str:
+    def output_to_text(
+        self, verbose: bool = False, filepath: Optional[Union[str, Path]] = None
+    ) -> str:
         """YappiProfiler.output_to_text.
 
         Returns profiler output as text.
@@ -88,7 +90,9 @@ class YappiProfiler(Profiler):
             self._profiler.get_func_stats().print_all(out=file_stream)
         return string_stream.getvalue()
 
-    def output_to_callgrind(self, filepath: Optional[Union[str, Path]] = None) -> Optional[list[str]]:
+    def output_to_callgrind(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> Optional[list[str]]:
         """YappiProfiler.output_to_callgrind.
 
         Returns profiler output in callgrind format.
@@ -105,7 +109,9 @@ class YappiProfiler(Profiler):
                 f.write("\n".join(output))
         return output
 
-    def output_to_pstats(self, filepath: Optional[Union[str, Path]] = None) -> pstats.Stats:
+    def output_to_pstats(
+        self, filepath: Optional[Union[str, Path]] = None
+    ) -> pstats.Stats:
         """YappiProfiler.output_to_pstats.
 
         Returns profiler output in pstats format.
@@ -119,7 +125,8 @@ class YappiProfiler(Profiler):
         stats = self._profiler.get_func_stats()
         if filepath:
             stats.save(path=filepath, type="pstat")
-        return self._profiler.convert2pstats(stats)
+        pstats_obj: pstats.Stats = self._profiler.convert2pstats(stats)
+        return pstats_obj
 
     def print(self, verbose: bool = False) -> None:
         """YappiProfiler.print.
@@ -135,7 +142,7 @@ class YappiProfiler(Profiler):
         self._profiler.get_func_stats().print_all()
 
     def _to_callgrind(self) -> list[str]:
-        """Converts output to callgrind format"""
+        """Converts output to callgrind format."""
         stats = self._profiler.get_func_stats()
         # ================================================================================
         # Copy & paste from lines 928-966 in
@@ -143,43 +150,37 @@ class YappiProfiler(Profiler):
         # ================================================================================
         # BEGIN PASTE
         # ================================================================================
-        header = """version: 1\ncreator: %s\npid: %d\ncmd:  %s\npart: 1\n\nevents: Ticks""" % \
-            ('yappi', os.getpid(), ' '.join(sys.argv))
+        header = (
+            """version: 1\ncreator: %s\npid: %d\ncmd:  %s\npart: 1\n\nevents: Ticks"""
+            % ("yappi", os.getpid(), " ".join(sys.argv))
+        )
 
         lines = [header]
 
         # add function definitions
-        file_ids = ['']
-        func_ids = ['']
+        file_ids = [""]
+        func_ids = [""]
         for func_stat in stats:
-            file_ids += ['fl=(%d) %s' % (func_stat.index, func_stat.module)]
+            file_ids += ["fl=(%d) %s" % (func_stat.index, func_stat.module)]
             func_ids += [
-                'fn=(%d) %s %s:%s' % (
-                    func_stat.index, func_stat.name, func_stat.module,
-                    func_stat.lineno
-                )
+                "fn=(%d) %s %s:%s"
+                % (func_stat.index, func_stat.name, func_stat.module, func_stat.lineno)
             ]
 
         lines += file_ids + func_ids
 
         # add stats for each function we have a record of
         for func_stat in stats:
-            func_stats = [
-                '',
-                'fl=(%d)' % func_stat.index,
-                'fn=(%d)' % func_stat.index
-            ]
-            func_stats += [
-                '%s %s' % (func_stat.lineno, int(func_stat.tsub * 1e6))
-            ]
+            func_stats = ["", "fl=(%d)" % func_stat.index, "fn=(%d)" % func_stat.index]
+            func_stats += ["%s %s" % (func_stat.lineno, int(func_stat.tsub * 1e6))]
 
             # children functions stats
             for child in func_stat.children:
                 func_stats += [
-                    'cfl=(%d)' % child.index,
-                    'cfn=(%d)' % child.index,
-                    'calls=%d 0' % child.ncall,
-                    '0 %d' % int(child.ttot * 1e6)
+                    "cfl=(%d)" % child.index,
+                    "cfn=(%d)" % child.index,
+                    "calls=%d 0" % child.ncall,
+                    "0 %d" % int(child.ttot * 1e6),
                 ]
             lines += func_stats
         # ================================================================================

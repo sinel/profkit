@@ -27,10 +27,10 @@ import logging
 import random
 import time
 from typing import Callable, Generator, Optional
-from wonderwords import RandomWord
 
 from loguru import logger
 import pytest
+from wonderwords import RandomWord
 
 
 @pytest.fixture
@@ -100,6 +100,6 @@ def generate_test_function(code: str, name: Optional[str] = None) -> Callable:
         name = f"{RandomWord().word(include_categories=['adjective'])}Function"
     code = f"""def {name}(*args, **kwargs):\n  {code}"""
     exec(code, globals(), locals())
-    func = locals()[name]
+    func: Callable = locals()[name]
     globals()[func.__name__] = func
     return func
